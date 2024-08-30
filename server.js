@@ -32,3 +32,7 @@ connectDB().then(db => {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }).catch(console.error);
+
+app.get('/', (req, res) => {
+    res.send('Welcome to the API of Projet Connect Alison ci/cd !');
+});
