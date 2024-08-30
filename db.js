@@ -17,7 +17,7 @@ async function connectDB() {
     try {
         await client.connect();
         console.log("Connected to MongoDB!");
-        return client.db("cicdperarddklynov");
+        return client.db("cicdperarddklynov"); // Assurez-vous que le nom de la base est correct
     } catch (err) {
         console.error("Failed to connect to MongoDB:", err.message);
         throw err;

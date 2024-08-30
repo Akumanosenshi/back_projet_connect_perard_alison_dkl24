@@ -1,9 +1,12 @@
 const express = require('express');
+const cors = require('cors');  // Importer cors
 const connectDB = require('./db');
+const User = require('./models/User');
 
 const app = express();
-app.use(express.json());
 
+app.use(cors());  // Utiliser cors pour autoriser toutes les origines
+app.use(express.json());
 connectDB().then(db => {
     const usersCollection = db.collection('users');
 
