@@ -1,33 +1,28 @@
-require('dotenv').config();  // Charge les variables d'environnement
 const request = require('supertest');
-const express = require('express');
+const app = require('../server');
 const mongoose = require('mongoose');
-const userRoutes = require('../routes/userRoutes');  // Assurez-vous que ce chemin est correct
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const User = require('../models/User');
 
-let app;
+let mongoServer;
 
 beforeAll(async () => {
-    // Connecte à MongoDB en utilisant l'URI du fichier .env
-    const mongoUri = process.env.MONGO_URI;
-    await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    // Crée une application express pour les tests
-    app = express();
-    app.use(express.json());
-    app.use('/api/users', userRoutes);  // Monte les routes sur l'application
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 });
 
 afterAll(async () => {
-    await mongoose.disconnect();  // Déconnecte la base de données après tous les tests
+    await mongoose.disconnect();
+    await mongoServer.stop();
 });
 
 afterEach(async () => {
-    await User.deleteMany({});  // Nettoie la collection des utilisateurs après chaque test
+    await User.deleteMany({});
 });
 
 describe('User API', () => {
-    it('should create a new user', async () => {
+    it('should create a new user successfully', async () => {
         const response = await request(app)
             .post('/api/users')
             .send({
@@ -44,7 +39,7 @@ describe('User API', () => {
         expect(response.body.firstName).toBe('John');
     });
 
-    it('should fail with invalid data', async () => {
+    it('should return validation error for invalid data', async () => {
         const response = await request(app)
             .post('/api/users')
             .send({
